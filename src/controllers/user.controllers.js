@@ -49,34 +49,21 @@ const loginUser = asyncHandler(async (req, res, next) => {
       "-password -refreshToken"
     );
 
-    // const options = {
-    //   httpOnly: true, // Ensures the cookie is not accessible via JavaScript
-    //   secure: false, // Should be false in local development (secure cookies require HTTPS)
-    //   sameSite: "Lax", // Use 'Lax' or 'Strict' for local development
-    // };
-
-    // const options = {
-    //   httpOnly: true,
-    //   secure: false,
-    //   sameSite: "None",
-    //   path: "/",
-    // };
     const options = {
       httpOnly: true,
       secure: true,
-      // secure: false,
       sameSite: "none",
-      // SameSite:"Lax",
-      // maxAge: 900000
     };
 
     return res
       .status(200)
-      .cookie("accessTokenSB", accessToken, options)
+      .cookie("accessTokenSB", accessToken, {
+        ...options,
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      })
       .cookie("refreshTokenSB", refreshToken, {
         ...options,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        // maxAge: 2 * 60 * 1000,
       })
       .json(
         new ApiResponse(
@@ -159,12 +146,11 @@ const logoutUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true, // Ye true tab set karen jab aap HTTPS use kar rahe hain
     sameSite: "None", // SameSite option ko match karen jo login ke dauran use hua tha
-    path: "/", // Path ko match karen jo login ke dauran use hua tha
   };
 
   return res
     .status(200)
-    .clearCookie("accessTokenSB", options) // accessToken cookie ko clear karen
+    .clearCookie("accessTokenSB", { ...options, maxAge: 0 }) // accessToken cookie ko clear karen
     .clearCookie("refreshTokenSB", { ...options, maxAge: 0 }) // refreshToken cookie ko clear karen, maxAge ko 0 set karen
     .json(new ApiResponse(200, {}, "User successfully logged out")); // Response bhejen
 });
