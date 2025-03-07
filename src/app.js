@@ -13,10 +13,8 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://localhost:5000",
+      "https://surreymots.vercel.app",
       "http://localhost:5173",
-      "https://www.sandbox.paypal.com",
-      "https://zacsgutters.vercel.app",
-      "https://high-oaks-media-crm.vercel.app",
       "https://ferndale-autos-booking-frontend.vercel.app",
     ],
     credentials: true,
