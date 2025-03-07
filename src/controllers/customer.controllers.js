@@ -263,7 +263,7 @@ const createCustomerByAdmin = asyncHandler(async (req, res, next) => {
     await timeSlot.save();
     await sendCustomerConfirmationEmail(newCustomer);
     // Send notification email to the admin
-    await sendAdminNotificationEmail(newCustomer);
+    // await sendAdminNotificationEmail(newCustomer);
 
     return res
       .status(201)

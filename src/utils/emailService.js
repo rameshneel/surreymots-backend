@@ -85,7 +85,7 @@ export const sendCustomerConfirmationEmail = async (customer) => {
         </div>
         <div class="content">
           <p>Dear ${customer.firstName} ${customer.lastName},</p>
-          <p>Thank you for choosing our service. Our team has successfully booked your appointment through our offline reservation system.</p>
+          <p>Thank you for choosing our service. Our team has successfully booked your appointment through our reservation system.</p>
           
           <div class="booking-details">
             <h2>Booking Details</h2>
