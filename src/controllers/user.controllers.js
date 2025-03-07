@@ -49,11 +49,11 @@ const loginUser = asyncHandler(async (req, res, next) => {
       "-password -refreshToken"
     );
 
-    const options = {
-      httpOnly: true, // Ensures the cookie is not accessible via JavaScript
-      secure: false, // Should be false in local development (secure cookies require HTTPS)
-      sameSite: "Lax", // Use 'Lax' or 'Strict' for local development
-    };
+    // const options = {
+    //   httpOnly: true, // Ensures the cookie is not accessible via JavaScript
+    //   secure: false, // Should be false in local development (secure cookies require HTTPS)
+    //   sameSite: "Lax", // Use 'Lax' or 'Strict' for local development
+    // };
 
     // const options = {
     //   httpOnly: true,
@@ -61,14 +61,14 @@ const loginUser = asyncHandler(async (req, res, next) => {
     //   sameSite: "None",
     //   path: "/",
     // };
-    // const options = {
-    //   httpOnly: true,
-    //   secure: true,
-    //   // secure: false,
-    //   sameSite: "none",
-    //   // SameSite:"Lax",
-    //   // maxAge: 900000
-    // };
+    const options = {
+      httpOnly: true,
+      secure: true,
+      // secure: false,
+      sameSite: "none",
+      // SameSite:"Lax",
+      // maxAge: 900000
+    };
 
     return res
       .status(200)
