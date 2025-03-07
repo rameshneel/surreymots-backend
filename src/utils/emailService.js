@@ -1,6 +1,8 @@
 // src/utils/email.service.js
+import { config } from "dotenv";
 import nodemailer from "nodemailer";
-
+// Load environment variables
+config();
 // Email configuration
 const emailConfig = {
   host: process.env.EMAIL_HOST,
@@ -20,25 +22,11 @@ transporter.verify((error, success) => {
     console.log("SMTP connection is ready");
   }
 });
-// Helper functions
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-  }).format(amount);
-};
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+
 // Send email function
 const sendEmail = async (to, subject, html) => {
   const mailOptions = {
-    from: "Booking <info@surreymots.co.uk>",
+    from: "Booking <ramesh@neelnetworks.com>",
     to,
     subject,
     html,
@@ -54,6 +42,21 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
+// Helper functions
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+  }).format(amount);
+};
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 export const sendCustomerConfirmationEmail = async (customer) => {
   const emailSubject = "Your Booking is Confirmed!";
   const emailBody = `
