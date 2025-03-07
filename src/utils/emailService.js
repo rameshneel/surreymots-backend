@@ -74,7 +74,7 @@ export const sendCustomerConfirmationEmail = async (customer) => {
         .content { background-color: #ffffff; padding: 20px; border-radius: 5px; }
         .booking-details { background-color: #f0f0f0; border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-top: 20px; }
         .footer { margin-top: 20px; font-size: 12px; color: #888; text-align: center; }
-        .btn { display: inline-block; padding: 10px 20px; background-color: #3B82F6; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-weight: 500; }
+        .btn { display: inline-block; padding: 10px 20px; background-color:rgb(0, 1, 2); color: #FFFFFF; text-decoration: none; border-radius: 6px; font-weight: 500; }
         .note { color: #666; font-style: italic; margin-top: 15px; }
       </style>
     </head>
@@ -194,7 +194,6 @@ export const sendAdminNotificationEmail = async (customer) => {
               )}</td></tr>
               <tr><th>Method</th><td>${customer.paymentMethod}</td></tr>
               <tr><th>Status</th><td>${customer.paymentStatus}</td></tr>
-              <tr><th>Refund Status</th><td>${customer.refundStatus}</td></tr>
             </table>
           </div>
           
