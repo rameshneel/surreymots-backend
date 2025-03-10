@@ -5,6 +5,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import {
   sendCustomerConfirmationEmail,
   sendAdminNotificationEmail,
+  sendCustomerConfirmationEmailOnline,
+  sendAdminNotificationEmailOnline,
 } from "../utils/emailService.js";
 import TimeSlot from "../models/timeSlot.model.js";
 
@@ -206,9 +208,9 @@ const createCustomer = asyncHandler(async (req, res, next) => {
     }
 
     await timeSlot.save();
-    await sendCustomerConfirmationEmail(newCustomer);
+    await sendCustomerConfirmationEmailOnline(newCustomer);
     // // Send notification email to the admin
-    await sendAdminNotificationEmail(newCustomer);
+    await sendAdminNotificationEmailOnline(newCustomer);
 
     return res
       .status(201)
