@@ -182,7 +182,7 @@ const createCustomerByAdmin = asyncHandler(async (req, res, next) => {
       registrationNo,
       classSelection,
     } = req.body;
-
+    const OrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     // Validate required fields based on the schema
     if (
       !firstName ||
@@ -244,6 +244,7 @@ const createCustomerByAdmin = asyncHandler(async (req, res, next) => {
       paymentMethod: "Cash",
       bookedBy: "admin",
       classSelection,
+      paypalOrderId: OrderId,
     });
     await newCustomer.save();
 
@@ -261,9 +262,9 @@ const createCustomerByAdmin = asyncHandler(async (req, res, next) => {
     }
 
     await timeSlot.save();
-    await sendCustomerConfirmationEmail(newCustomer);
-    // Send notification email to the admin
-    await sendAdminNotificationEmail(newCustomer);
+    // await sendCustomerConfirmationEmail(newCustomer);
+    // // Send notification email to the admin
+    // await sendAdminNotificationEmail(newCustomer);
 
     return res
       .status(201)
@@ -287,7 +288,6 @@ const updateCustomerByAdmin = asyncHandler(async (req, res, next) => {
       makeAndModel,
       registrationNo,
       awareOfCancellationPolicy,
-      howDidYouHearAboutUs,
       paymentMethod,
       totalPrice,
     } = req.body;
@@ -347,8 +347,6 @@ const updateCustomerByAdmin = asyncHandler(async (req, res, next) => {
     if (awareOfCancellationPolicy !== undefined) {
       existingCustomer.awareOfCancellationPolicy = awareOfCancellationPolicy;
     }
-    if (howDidYouHearAboutUs)
-      existingCustomer.howDidYouHearAboutUs = howDidYouHearAboutUs;
     if (paymentMethod) existingCustomer.paymentMethod = paymentMethod;
     if (totalPrice) existingCustomer.totalPrice = totalPrice;
 

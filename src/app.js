@@ -40,12 +40,13 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import paymentRoute from "./routes/payment.route.js";
 
 //routes declaration
 app.use("/api/users", userRouter);
 app.use("/api/customers", customerRoutes);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/payments", paymentRoute);
 function errorHandler(err, req, res, next) {
   if (err instanceof ApiError) {
     console.error(`API Error: ${err.message}`);

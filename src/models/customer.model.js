@@ -33,8 +33,8 @@ const customerSchema = new mongoose.Schema(
     registrationNo: { type: String, required: true },
     paymentMethod: {
       type: String,
-      enum: ["PayPal", "Cash"],
-      required: true,
+      enum: ["Payment on the day", "Cash"],
+      required: [true, "Payment method is required"],
     },
     paymentStatus: {
       type: String,
