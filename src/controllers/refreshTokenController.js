@@ -8,7 +8,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new ApiError(404, "User not found.");
+      throw new ApiError(404, "User not found."); // Using ApiError
     }
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
@@ -21,7 +21,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
     throw new ApiError(
       500,
       "Something went wrong while generating refresh and access token"
-    );
+    ); // Using ApiError
   }
 };
 
@@ -50,7 +50,13 @@ export const refreshToken = asyncHandler(async (req, res) => {
       maxAge: 2 * 60 * 1000,
     });
 
-    res.json(new ApiResponse(200, null, "Token refreshed successfully"));
+    res.json(
+      new ApiResponse(
+        200,
+        { authenticated: true },
+        "Token refreshed successfully"
+      )
+    );
   } catch (error) {
     console.error("Error in refreshToken:", error);
     res.status(403).json(new ApiError(403, "Invalid refresh token"));
