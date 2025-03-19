@@ -50,13 +50,17 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  const date = new Date(dateString);
+  return `${date.toLocaleDateString("en-US", {
     weekday: "long",
-    year: "numeric",
+  })}, ${date.getDate()} ${date.toLocaleDateString("en-US", {
     month: "long",
-    day: "numeric",
-  });
+  })}, ${date.getFullYear()}`;
 };
+const formatClass = (classSelection) => {
+  return classSelection.replace(/class(\d+)/i, "Class $1");
+};
+
 // Customer Confirmation Email (for offline booking)
 export const sendCustomerConfirmationEmail = async (customer) => {
   const emailSubject = "Your Booking Confirmation - Offline Reservation";
@@ -89,13 +93,15 @@ export const sendCustomerConfirmationEmail = async (customer) => {
           
           <div class="booking-details">
             <h2>Booking Details</h2>
-            <p><strong>Booking ID:</strong> ${customer._id}</p>
+            <p><strong>Booking ID:</strong> ${customer.paypalOrderId}</p>
             <p><strong>Date:</strong> ${formatDate(customer.selectedDate)}</p>
             <p><strong>Time:</strong> ${customer.selectedTimeSlot}</p>
             <p><strong>Vehicle:</strong> ${customer.makeAndModel} (${
     customer.registrationNo
   })</p>
-            <p><strong>Class:</strong> ${customer.classSelection}</p>
+            <p><strong>Class:</strong> ${formatClass(
+              customer.classSelection
+            )}</p>
             <p><strong>Amount:</strong> ${formatCurrency(
               customer.totalPrice
             )}</p>
@@ -173,7 +179,7 @@ export const sendAdminNotificationEmail = async (customer) => {
           <div class="section">
             <h2>Booking Details</h2>
             <table>
-              <tr><th>Booking ID</th><td>${customer._id}</td></tr>
+              <tr><th>Booking ID</th><td>${customer.paypalOrderId}</td></tr>
               <tr><th>Date</th><td>${formatDate(
                 customer.selectedDate
               )}</td></tr>
@@ -181,7 +187,9 @@ export const sendAdminNotificationEmail = async (customer) => {
               <tr><th>Vehicle</th><td>${customer.makeAndModel} (${
     customer.registrationNo
   })</td></tr>
-              <tr><th>Class</th><td>${customer.classSelection}</td></tr>
+              <tr><th>Class</th><td>${formatClass(
+                customer.classSelection
+              )}</td></tr>
             </table>
           </div>
           
@@ -192,7 +200,7 @@ export const sendAdminNotificationEmail = async (customer) => {
                 customer.totalPrice
               )}</td></tr>
               <tr><th>Method</th><td>${customer.paymentMethod}</td></tr>
-              <tr><th>Status</th><td>${customer.paymentStatus}</td></tr>
+              <tr><th>Status</th><td>${customer.paymentStatus} & Card </td></tr>
             </table>
           </div>
           
@@ -402,7 +410,9 @@ export const sendCustomerConfirmationEmailOnline = async (customer) => {
             <p><strong>Vehicle:</strong> ${customer.makeAndModel} (${
     customer.registrationNo
   })</p>
-            <p><strong>MOT Class:</strong> ${customer.classSelection}</p>
+            <p><strong>MOT Class:</strong> ${formatClass(
+              customer.classSelection
+            )}</p>
             <p><strong>Amount Due:</strong> ${formatCurrency(
               customer.totalPrice
             )}</p>
@@ -489,7 +499,9 @@ export const sendAdminNotificationEmailOnline = async (customer) => {
               <tr><th>Vehicle</th><td>${customer.makeAndModel} (${
     customer.registrationNo
   })</td></tr>
-              <tr><th>MOT Class</th><td>${customer.classSelection}</td></tr>
+              <tr><th>MOT Class</th><td>${formatClass(
+                customer.classSelection
+              )}</td></tr>
             </table>
           </div>
           
