@@ -105,8 +105,10 @@ export const sendCustomerConfirmationEmail = async (customer) => {
             <p><strong>Amount:</strong> ${formatCurrency(
               customer.totalPrice
             )}</p>
-            <p><strong>Payment Method:</strong> ${customer.paymentMethod}</p>
-            <p><strong>Payment Status:</strong> ${customer.paymentStatus}</p>
+            <p><strong>Payment Method:</strong> ${
+              customer.paymentMethod
+            }  & Card</p>
+            <p><strong>Booking Status:</strong> Completed </p>
             <p><strong>Booked By:</strong> Admin Team</p>
           </div>
           
@@ -114,10 +116,13 @@ export const sendCustomerConfirmationEmail = async (customer) => {
           
           <p>For any questions or to reschedule, please contact us:</p>
           <p>
-            <a href="mailto:${
-              process.env.COMPANY_EMAIL
-            }" class="btn">Contact Us</a>
-            <span> or call ${process.env.COMPANY_PHONE}</span>
+           <a href="mailto:${
+             process.env.COMPANY_EMAIL
+           }" class="btn">Contact Us</a>
+<span> or call <a href="tel:+${process.env.COMPANY_PHONE}" aria-label="Call ${
+    process.env.COMPANY_PHONE
+  }">${process.env.COMPANY_PHONE}</a></span>
+
           </p>
         </div>
         <div class="footer">
@@ -199,8 +204,8 @@ export const sendAdminNotificationEmail = async (customer) => {
               <tr><th>Amount</th><td>${formatCurrency(
                 customer.totalPrice
               )}</td></tr>
-              <tr><th>Method</th><td>${customer.paymentMethod}</td></tr>
-              <tr><th>Status</th><td>${customer.paymentStatus} & Card </td></tr>
+              <tr><th>Method</th><td>${customer.paymentMethod}  & Card</td></tr>
+              <tr><th>Status</th><td> Completed </td></tr>
             </table>
           </div>
           
@@ -428,7 +433,10 @@ export const sendCustomerConfirmationEmailOnline = async (customer) => {
             <a href="mailto:${
               process.env.COMPANY_EMAIL
             }" class="btn">Contact Us</a>
-            <span> or call ${process.env.COMPANY_PHONE}</span>
+<span> or call <a href="tel:+${process.env.COMPANY_PHONE}" aria-label="Call ${
+    process.env.COMPANY_PHONE
+  }">${process.env.COMPANY_PHONE}</a></span>
+
           </p>
         </div>
         <div class="footer">
