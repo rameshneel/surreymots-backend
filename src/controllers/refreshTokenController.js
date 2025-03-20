@@ -27,7 +27,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
 
 export const refreshToken = asyncHandler(async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshTokenSM;
     console.log("refreshToken", refreshToken);
 
     if (!refreshToken) {
@@ -43,11 +43,11 @@ export const refreshToken = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefereshTokens(user._id);
 
-    res.cookie("accessToken", accessToken, {
+    res.cookie("accessTokenSM", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "None",
-      maxAge: 2 * 60 * 1000,
+      maxAge: 10 * 60 * 1000,
     });
 
     res.json(
@@ -65,7 +65,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
 export const apiProtect = asyncHandler(async (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken;
+    const token = req.cookies?.accessTokenSM;
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
     }

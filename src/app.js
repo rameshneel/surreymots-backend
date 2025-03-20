@@ -13,8 +13,9 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://localhost:5000",
-      "https://surreymots.vercel.app",
       "http://localhost:5173",
+      "https://surreymots-frontend-mot.vercel.app",
+      "http://localhost:4173",
       "https://ferndale-autos-booking-frontend.vercel.app",
     ],
     credentials: true,

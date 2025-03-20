@@ -54,17 +54,17 @@ const loginUser = asyncHandler(async (req, res, next) => {
       secure: true,
       // secure: false,
       sameSite: "none",
-      // SameSite:"Lax",
+      // SameSite: "Lax",
       // maxAge: 900000
     };
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, {
+      .cookie("accessTokenSM", accessToken, options)
+      .cookie("refreshTokenSM", refreshToken, {
         ...options,
-        // maxAge: 7 * 24 * 60 * 60 * 1000,
-        maxAge: 2 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        // maxAge: 2 * 60 * 1000,
       })
       .json(
         new ApiResponse(
@@ -151,9 +151,9 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("accessTokenSB", { ...options, maxAge: 0 }) // accessToken cookie ko clear karen
-    .clearCookie("refreshTokenSB", { ...options, maxAge: 0 }) // refreshToken cookie ko clear karen, maxAge ko 0 set karen
-    .json(new ApiResponse(200, {}, "User successfully logged out")); // Response bhejen
+    .clearCookie("accessTokenSM", { ...options, maxAge: 0 })
+    .clearCookie("refreshTokenSM", { ...options, maxAge: 0 })
+    .json(new ApiResponse(200, {}, "User successfully logged out"));
 });
 
 const forgetPassword = asyncHandler(async (req, res, next) => {
@@ -280,37 +280,6 @@ const updateAccountDetails = asyncHandler(async (req, res, next) => {
   } catch (error) {
     // Pass the error to the next middleware (errorHandler)
     return next(error);
-  }
-});
-// Refresh token endpoint
-const refreshToken = asyncHandler(async (req, res) => {
-  const { refreshToken } = req.cookies;
-
-  if (!refreshToken) {
-    throw new ApiError(401, "Refresh token missing");
-  }
-
-  try {
-    const { userId } = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-    const user = await User.findById(userId);
-
-    if (!user || user.refreshToken !== refreshToken) {
-      throw new ApiError(401, "Invalid refresh token");
-    }
-
-    const { accessToken } = generateTokens(userId);
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "None",
-    });
-
-    res.status(200).json({ accessToken });
-  } catch (error) {
-    throw new ApiError(401, "Invalid or expired refresh token");
   }
 });
 
