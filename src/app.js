@@ -16,7 +16,7 @@ app.use(
       "http://localhost:5173",
       "https://surreymots-frontend-mot.vercel.app",
       "http://localhost:4173",
-      "https://ferndale-autos-booking-frontend.vercel.app",
+      "https://www.surreymots.co.uk",
     ],
     credentials: true,
     secure: false,
