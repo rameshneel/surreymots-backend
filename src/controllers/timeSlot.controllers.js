@@ -35,7 +35,7 @@ const DEFAULT_TIME_SLOTS = [
   "14:00",
   "15:00",
   "16:00",
-  "17:00",
+  // "17:00",
 ];
 const getAvailableSlotsForDate = async (date) => {
   const timeSlot = await TimeSlot.findOne({ date });
