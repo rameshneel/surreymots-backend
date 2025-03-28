@@ -78,78 +78,175 @@ const getAvailableTimeSlotsForForm = asyncHandler(async (req, res) => {
     );
 });
 const getDisabledDates = asyncHandler(async (req, res) => {
-  const { year, month } = req.query;
+  const { year, month } = req.query; // Expecting a single year and month per request
 
   if (!year || !month) {
     throw new ApiError(400, "Year aur month required hai.");
   }
 
-  // Calculate the start and end dates of the month (in UTC)
-  const startDate = new Date(Date.UTC(year, month - 1, 1)); // Start of the month in UTC
-  const endDate = new Date(Date.UTC(year, month, 0)); // End of the month in UTC
+  // Convert the received month and year into numbers
+  const startMonth = parseInt(month, 10);
+  const startYear = parseInt(year, 10);
 
-  console.log("Start Date:", startDate.toISOString()); // Log the start date
-  console.log("End Date:", endDate.toISOString()); // Log the end date
+  // Initialize an empty array to hold the disabled dates for all three months
+  let allDisabledDates = [];
 
-  // Perform the aggregation pipeline
-  const disabledDates = await TimeSlot.aggregate([
-    {
-      $match: {
-        date: {
-          $gte: startDate, // Compare using UTC date
-          $lte: endDate,
+  // Loop through the 3 months: one month before, the given month, and the next month
+  for (let i = -1; i <= 1; i++) {
+    // Calculate the current month and year
+    const currentMonth = ((startMonth + i - 1) % 12) + 1; // Get the correct month (adjust for 1-12 range)
+    const currentYear = startYear + Math.floor((startMonth + i - 1) / 12); // Adjust year if month goes beyond December
+
+    // Calculate the start and end dates of the month (in UTC)
+    const startDate = new Date(Date.UTC(currentYear, currentMonth - 1, 1)); // Start of the month in UTC
+    const endDate = new Date(Date.UTC(currentYear, currentMonth, 0)); // End of the month in UTC
+
+    console.log(`Fetching disabled dates for ${currentMonth}/${currentYear}:`);
+    console.log("Start Date:", startDate.toISOString()); // Log the start date
+    console.log("End Date:", endDate.toISOString()); // Log the end date
+
+    // Perform the aggregation pipeline to fetch the disabled dates
+    const disabledDates = await TimeSlot.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startDate, // Compare using UTC date
+            $lte: endDate,
+          },
         },
       },
-    },
-    // Add fields to calculate totalSlots and unavailableSlots
-    {
-      $addFields: {
-        totalSlots: { $size: { $ifNull: ["$slots", []] } }, // Count all slots
-        unavailableSlots: {
-          $size: {
-            $filter: {
-              input: { $ifNull: ["$slots", []] }, // Ensure slots array is not null
-              as: "slot",
-              cond: { $ne: ["$$slot.blockedBy", null] }, // Count only blocked slots
+      // Add fields to calculate totalSlots and unavailableSlots
+      {
+        $addFields: {
+          totalSlots: { $size: { $ifNull: ["$slots", []] } }, // Count all slots
+          unavailableSlots: {
+            $size: {
+              $filter: {
+                input: { $ifNull: ["$slots", []] }, // Ensure slots array is not null
+                as: "slot",
+                cond: { $ne: ["$$slot.blockedBy", null] }, // Count only blocked slots
+              },
             },
           },
         },
       },
-    },
-    // Debug: Check the output of the added fields
-    {
-      $project: {
-        date: 1,
-        totalSlots: 1,
-        unavailableSlots: 1,
-        _id: 0,
-      },
-    },
-    // Match: Make sure the total number of slots equals the number of unavailable slots (fully blocked day)
-    {
-      $match: {
-        $expr: {
-          $eq: ["$totalSlots", 8], // Match the number of time slots in the day (8 slots)
-          $eq: ["$totalSlots", "$unavailableSlots"], // Ensure all slots are unavailable
+      // Debug: Check the output of the added fields
+      {
+        $project: {
+          date: 1,
+          totalSlots: 1,
+          unavailableSlots: 1,
+          _id: 0,
         },
       },
-    },
-    // Final projection to return only the date field
-    {
-      $project: {
-        date: 1,
-        _id: 0,
+      // Match: Make sure the total number of slots equals the number of unavailable slots (fully blocked day)
+      {
+        $match: {
+          $expr: {
+            $eq: ["$totalSlots", 8], // Match the number of time slots in the day (8 slots)
+            $eq: ["$totalSlots", "$unavailableSlots"], // Ensure all slots are unavailable
+          },
+        },
       },
-    },
-  ]);
+      // Final projection to return only the date field
+      {
+        $project: {
+          date: 1,
+          _id: 0,
+        },
+      },
+    ]);
+
+    // Combine the result with the overall array
+    allDisabledDates = [...allDisabledDates, ...disabledDates];
+  }
 
   // Log the final disabled dates result
-  console.log("Disabled Dates:", disabledDates);
+  console.log("All Disabled Dates:", allDisabledDates);
 
+  // Return the response with all the disabled dates for the provided months
   res.json(
-    new ApiResponse(200, disabledDates, "Disabled dates fetched successfully")
+    new ApiResponse(
+      200,
+      allDisabledDates,
+      "Disabled dates fetched successfully for the previous, current, and next months"
+    )
   );
 });
+
+// const getDisabledDates = asyncHandler(async (req, res) => {
+//   const { year, month } = req.query;
+
+//   if (!year || !month) {
+//     throw new ApiError(400, "Year aur month required hai.");
+//   }
+
+//   // Calculate the start and end dates of the month (in UTC)
+//   const startDate = new Date(Date.UTC(year, month - 1, 1)); // Start of the month in UTC
+//   const endDate = new Date(Date.UTC(year, month, 0)); // End of the month in UTC
+
+//   console.log("Start Date:", startDate.toISOString());  // Log the start date
+//   console.log("End Date:", endDate.toISOString());      // Log the end date
+
+//   // Perform the aggregation pipeline
+//   const disabledDates = await TimeSlot.aggregate([
+//     {
+//       $match: {
+//         date: {
+//           $gte: startDate,  // Compare using UTC date
+//           $lte: endDate,
+//         },
+//       },
+//     },
+//     // Add fields to calculate totalSlots and unavailableSlots
+//     {
+//       $addFields: {
+//         totalSlots: { $size: { $ifNull: ["$slots", []] } }, // Count all slots
+//         unavailableSlots: {
+//           $size: {
+//             $filter: {
+//               input: { $ifNull: ["$slots", []] }, // Ensure slots array is not null
+//               as: "slot",
+//               cond: { $ne: ["$$slot.blockedBy", null] }, // Count only blocked slots
+//             },
+//           },
+//         },
+//       },
+//     },
+//     // Debug: Check the output of the added fields
+//     {
+//       $project: {
+//         date: 1,
+//         totalSlots: 1,
+//         unavailableSlots: 1,
+//         _id: 0,
+//       },
+//     },
+//     // Match: Make sure the total number of slots equals the number of unavailable slots (fully blocked day)
+//     {
+//       $match: {
+//         $expr: {
+//           $eq: ["$totalSlots", 8], // Match the number of time slots in the day (8 slots)
+//           $eq: ["$totalSlots", "$unavailableSlots"], // Ensure all slots are unavailable
+//         },
+//       },
+//     },
+//     // Final projection to return only the date field
+//     {
+//       $project: {
+//         date: 1,
+//         _id: 0,
+//       },
+//     },
+//   ]);
+
+//   // Log the final disabled dates result
+//   console.log("Disabled Dates:", disabledDates);
+
+//   res.json(
+//     new ApiResponse(200, disabledDates, "Disabled dates fetched successfully")
+//   );
+// });
 
 // const getDisabledDates = asyncHandler(async (req, res) => {
 //   const { year, month } = req.query;
