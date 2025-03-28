@@ -84,44 +84,57 @@ const getDisabledDates = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Year aur month required hai.");
   }
 
-  const startDate = new Date(year, month - 1, 1);
-  const endDate = new Date(year, month, 0);
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
+  // Calculate the start and end dates of the month (in UTC)
+  const startDate = new Date(Date.UTC(year, month - 1, 1)); // Start of the month in UTC
+  const endDate = new Date(Date.UTC(year, month, 0)); // End of the month in UTC
 
+  console.log("Start Date:", startDate.toISOString()); // Log the start date
+  console.log("End Date:", endDate.toISOString()); // Log the end date
+
+  // Perform the aggregation pipeline
   const disabledDates = await TimeSlot.aggregate([
     {
       $match: {
         date: {
-          $gte: startDate,
+          $gte: startDate, // Compare using UTC date
           $lte: endDate,
         },
       },
     },
+    // Add fields to calculate totalSlots and unavailableSlots
     {
       $addFields: {
-        totalSlots: { $size: { $ifNull: ["$slots", []] } },
+        totalSlots: { $size: { $ifNull: ["$slots", []] } }, // Count all slots
         unavailableSlots: {
           $size: {
             $filter: {
-              input: { $ifNull: ["$slots", []] },
+              input: { $ifNull: ["$slots", []] }, // Ensure slots array is not null
               as: "slot",
-              cond: { $ne: ["$$slot.blockedBy", null] },
+              cond: { $ne: ["$$slot.blockedBy", null] }, // Count only blocked slots
             },
           },
         },
       },
     },
+    // Debug: Check the output of the added fields
+    {
+      $project: {
+        date: 1,
+        totalSlots: 1,
+        unavailableSlots: 1,
+        _id: 0,
+      },
+    },
+    // Match: Make sure the total number of slots equals the number of unavailable slots (fully blocked day)
     {
       $match: {
         $expr: {
-          $and: [
-            { $eq: ["$totalSlots", { $literal: DEFAULT_TIME_SLOTS.length }] },
-            { $eq: ["$totalSlots", "$unavailableSlots"] },
-          ],
+          $eq: ["$totalSlots", 8], // Match the number of time slots in the day (8 slots)
+          $eq: ["$totalSlots", "$unavailableSlots"], // Ensure all slots are unavailable
         },
       },
     },
+    // Final projection to return only the date field
     {
       $project: {
         date: 1,
@@ -130,12 +143,73 @@ const getDisabledDates = asyncHandler(async (req, res) => {
     },
   ]);
 
-  console.log("Disabled Dates:", disabledDates); // Debugging line to check output
+  // Log the final disabled dates result
+  console.log("Disabled Dates:", disabledDates);
 
   res.json(
     new ApiResponse(200, disabledDates, "Disabled dates fetched successfully")
   );
 });
+
+// const getDisabledDates = asyncHandler(async (req, res) => {
+//   const { year, month } = req.query;
+
+//   if (!year || !month) {
+//     throw new ApiError(400, "Year aur month required hai.");
+//   }
+
+//   const startDate = new Date(year, month - 1, 1);
+//   const endDate = new Date(year, month, 0);
+//   console.log("Start Date:", startDate);
+//   console.log("End Date:", endDate);
+
+//   const disabledDates = await TimeSlot.aggregate([
+//     {
+//       $match: {
+//         date: {
+//           $gte: startDate,
+//           $lte: endDate,
+//         },
+//       },
+//     },
+//     {
+//       $addFields: {
+//         totalSlots: { $size: { $ifNull: ["$slots", []] } },
+//         unavailableSlots: {
+//           $size: {
+//             $filter: {
+//               input: { $ifNull: ["$slots", []] },
+//               as: "slot",
+//               cond: { $ne: ["$$slot.blockedBy", null] },
+//             },
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $match: {
+//         $expr: {
+//           $and: [
+//             { $eq: ["$totalSlots", { $literal: DEFAULT_TIME_SLOTS.length }] },
+//             { $eq: ["$totalSlots", "$unavailableSlots"] },
+//           ],
+//         },
+//       },
+//     },
+//     {
+//       $project: {
+//         date: 1,
+//         _id: 0,
+//       },
+//     },
+//   ]);
+
+//   console.log("Disabled Dates:", disabledDates); // Debugging line to check output
+
+//   res.json(
+//     new ApiResponse(200, disabledDates, "Disabled dates fetched successfully")
+//   );
+// });
 const blockTimeSlots = asyncHandler(async (req, res) => {
   const { date, slots } = req.body;
   if (!date || !slots || !Array.isArray(slots) || slots.length === 0) {
